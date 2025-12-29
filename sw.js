@@ -1,5 +1,5 @@
 // sw.js
-const CACHE_NAME = 'simple-calc-app-v13'; 
+const CACHE_NAME = 'simple-calc-app-v14'; 
 
 const urlsToCache = [
   './',
@@ -28,3 +28,4 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   event.respondWith(caches.match(event.request).then(res => res || fetch(event.request)));
 });
+
