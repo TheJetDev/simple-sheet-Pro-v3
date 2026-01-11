@@ -3,462 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Simple Sheet PRO</title> 
-    
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#1a237e">
-
+    <title>Simple Sheet PRO</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#e0e0e0">
     <link rel="manifest" href="manifest.json">
-
     <link rel="icon" href="favicon-96x96.png">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-
     <style>
-        /* --- 基本設定 --- */
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            padding: 8px; 
-            background-color: #f0f2f5; 
-            margin: 0; 
-            box-sizing: border-box; 
-            font-size: 16px; 
-            color: #000; 
-        }
+        /* --- 基本スタイル --- */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 8px; background-color: #f0f2f5; margin: 0; box-sizing: border-box; font-size: 16px; color: #000; }
         * { box-sizing: border-box; }
-
-        /* --- レイアウト --- */
-        .app-grid { 
-            display: flex; 
-            gap: 12px; 
-            max-width: 1400px; 
-            margin: 0 auto; 
-        }
+        .app-grid { display: flex; gap: 12px; max-width: 1600px; margin: 0 auto; align-items: flex-start; }
         
-        /* --- メインパネル --- */
-        .calculator-container { 
-            flex: 3; 
-            min-width: 0; 
-            background-color: #fff; 
-            padding: 12px; 
-            border-radius: 10px; 
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1); 
-            width: 100%; 
-        }
+        /* メモ帳エリア */
+        .memo-container { flex: 1; min-width: 250px; background-color: #fff; padding: 12px; border-radius: 10px; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1); height: 85vh; position: sticky; top: 8px; display: flex; flex-direction: column; }
+        .memo-area { flex: 1; width: 100%; resize: none; border: 1px solid #ccc; border-radius: 8px; padding: 10px; font-size: 0.95em; line-height: 1.5; outline: none; background: #ffffe0; color: #333; margin-bottom: 10px; }
+        .memo-links { max-height: 150px; overflow-y: auto; padding: 5px; background: #f9f9f9; border-radius: 6px; border: 1px dashed #ccc; }
+        .memo-link-item { display: block; padding: 6px; margin-bottom: 4px; background: #e3f2fd; color: #0d47a1; text-decoration: none; border-radius: 4px; font-size: 0.9em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .memo-link-item:hover { background: #bbdefb; }
 
-        /* --- 行（Row）のデザイン --- */
-        .row { 
-            display: flex; 
-            margin-bottom: 12px; 
-            padding: 12px; 
-            border: 1px solid #ccc; 
-            border-radius: 10px; 
-            background-color: #fff; 
-            gap: 8px; 
-        }
+        /* 計算シート */
+        .sheet-container { flex: 2; min-width: 0; background-color: #fff; padding: 12px; border-radius: 10px; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1); }
         
-        /* レスポンシブ対応: PC/タブレット */
-        @media screen and (min-width: 801px) {
+        /* 電卓 */
+        .side-calc { flex: 1; min-width: 260px; background: #333; padding: 12px; border-radius: 10px; color: white; height: fit-content; position: sticky; top: 8px; }
+
+        .row { display: flex; margin-bottom: 12px; padding: 12px; border: 1px solid #ccc; border-radius: 10px; background-color: #fff; gap: 8px; }
+        @media screen and (min-width: 1001px) {
             .row { flex-direction: row; align-items: center; justify-content: space-between; }
             .text-label-input { flex: 1.5; }
             .calc-area { flex: 1; justify-content: center; }
             .result-area { flex: 2; justify-content: flex-end; background: #f8f9fa; padding: 5px 10px; border-radius: 6px; }
             .result-text { font-size: 1.6em; }
         }
-
-        /* レスポンシブ対応: スマホ */
-        @media screen and (max-width: 800px) {
+        @media screen and (max-width: 1000px) {
+            body { padding-top: calc(env(safe-area-inset-top) + 10px) !important; padding-left: 8px; padding-right: 8px; }
+            .app-grid { flex-direction: column; }
+            .memo-container { width: 100%; height: auto; min-height: 200px; position: static; margin-bottom: 12px; }
+            .sheet-container { width: 100%; }
+            .top-controls { flex-wrap: wrap; }
             .row { flex-direction: column !important; align-items: stretch !important; }
             .text-label-input { width: 100% !important; font-size: 1.1em; padding: 10px; margin-bottom: 5px; }
             .calc-area { width: 100% !important; justify-content: center !important; padding: 10px 0; border-top: 1px dashed #eee; border-bottom: 1px dashed #eee; }
             .result-area { width: 100% !important; justify-content: space-between !important; background: #eefbff; padding: 12px; border-radius: 8px; }
-            .result-text { font-size: 2.2em; }
+            .result-text { font-size: 2.2em; word-break: break-all; }
+            .side-calc { display: none; position: fixed; bottom: 80px; right: 15px; z-index: 1000; width: 280px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+            .side-calc.active { display: block; }
+            .calc-toggle-btn { display: block; }
+            .mobile-calc-close { display: block; }
         }
-
-        /* --- 入力パーツ --- */
-        .text-label-input { 
-            padding: 8px; 
-            border: 2px solid #000; 
-            border-radius: 6px; 
-            font-weight: bold; 
-            color: #000; 
-            outline: none; 
-        }
+        /* パーツ類 */
+        .text-label-input { padding: 8px; border: 2px solid #000; border-radius: 6px; font-weight: bold; color: #000; outline: none; }
         .calc-area { display: flex; align-items: center; gap: 8px; }
-        
-        .multiplier-input { 
-            width: 110px; 
-            font-size: 1.5em; 
-            padding: 8px; 
-            text-align: right; 
-            border: 3px solid #007bff; 
-            border-radius: 6px; 
-            font-weight: bold; 
-            color: #000; 
-            outline: none; 
-        }
-        .multiplier-input::placeholder, .master-input::placeholder {
-            color: #ccc;
-            font-weight: normal;
-        }
-        
+        .multiplier-input { width: 110px; font-size: 1.5em; padding: 8px; text-align: right; border: 3px solid #007bff; border-radius: 6px; font-weight: bold; color: #000; outline: none; }
         .result-text { font-weight: bold; color: #007bff; }
-
-        /* --- 演算子コントロール --- */
         .operator-group { display: flex; flex-direction: column; align-items: center; width: 32px; }
-        .operator-control { 
-            font-size: 0.7em; 
-            background: #333; 
-            color: #fff; 
-            width: 100%; 
-            height: 20px; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            border-radius: 3px; 
-            cursor: pointer; 
-        }
-        .operator-display { 
-            font-size: 1.6em; 
-            font-weight: bold; 
-            text-align: center; 
-            color: #000; 
-            height: 35px; 
-            line-height: 35px; 
-            width: 100%; 
-        }
-
-        /* --- トグルボタン --- */
-        .percent-toggle, .base-toggle { 
-            border: 2px solid #ccc; 
-            border-radius: 6px; 
-            width: 50px; 
-            height: 50px; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            cursor: pointer; 
-            font-weight: bold; 
-            background: #fff; 
-            font-size: 1.3em; 
-            flex-shrink: 0; 
-            color: #000; 
-            user-select: none; 
-        }
+        .operator-control { font-size: 0.7em; background: #333; color: #fff; width: 100%; height: 20px; display: flex; justify-content: center; align-items: center; border-radius: 3px; cursor: pointer; }
+        .operator-display { font-size: 1.6em; font-weight: bold; text-align: center; color: #000; height: 35px; line-height: 35px; width: 100%; }
+        .percent-toggle, .base-toggle { border: 2px solid #ccc; border-radius: 6px; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-weight: bold; background: #fff; font-size: 1.3em; flex-shrink: 0; color: #000; user-select: none; }
         .percent-toggle.active { background: #dc3545; color: #fff; border-color: #dc3545; }
         .base-toggle.chain { background: #007bff; color: #fff; border-color: #007bff; }
-
         .action-btn { border: none; background: none; cursor: pointer; font-size: 1.8em; opacity: 0.7; padding: 5px; }
-
-        /* --- 最上部 マスター行 --- */
-        .master-row { 
-            padding: 12px; 
-            margin-bottom: 12px; 
-            border: 3px solid #dc3545; 
-            border-radius: 10px; 
-            background-color: #fff; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-        }
-        .master-input { 
-            width: 45%; 
-            padding: 8px; 
-            border: 2px solid #dc3545; 
-            border-radius: 6px; 
-            font-size: 1.5em; 
-            text-align: right; 
-            font-weight: bold; 
-            color: #000; 
-            outline: none; 
-        }
-
-        /* --- 保存/メモリバー --- */
-        .storage-bar { 
-            background: #dee2e6; 
-            border: 2px solid #666; 
-            border-radius: 10px; 
-            padding: 10px; 
-            margin-bottom: 12px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 8px; 
-        }
+        .master-row { padding: 12px; margin-bottom: 12px; border: 3px solid #dc3545; border-radius: 10px; background-color: #fff; display: flex; align-items: center; justify-content: space-between; }
+        .master-input { width: 45%; padding: 8px; border: 2px solid #dc3545; border-radius: 6px; font-size: 1.5em; text-align: right; font-weight: bold; color: #000; outline: none; }
+        .storage-bar { background: #dee2e6; border: 2px solid #666; border-radius: 10px; padding: 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; }
         .storage-controls { display: flex; align-items: center; gap: 10px; }
         .save-btn-main { background: #e67e22; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; white-space: nowrap; }
-        .edit-toggle-btn { background: #6c757d; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8em; }
+        .edit-toggle-btn { background: #6c757d; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1.2em; min-width: 50px; }
         .edit-toggle-btn.active { background: #dc3545; }
-
-        /* 保存リスト（横スクロール） */
         .save-list-container { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0; min-height: 45px; }
-        .save-chip { 
-            background: #fff; 
-            border: 2px solid #007bff; 
-            color: #000; 
-            padding: 6px 14px; 
-            border-radius: 20px; 
-            font-size: 0.85em; 
-            font-weight: bold; 
-            white-space: nowrap; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            cursor: pointer; 
-            user-select: none; 
-        }
+        .save-chip { background: #fff; border: 2px solid #007bff; color: #000; padding: 6px 14px; border-radius: 20px; font-size: 0.85em; font-weight: bold; white-space: nowrap; display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
         .save-chip .del-icon { display: none; color: #dc3545; font-size: 1.3em; }
         .editing .save-chip { border-style: dashed; opacity: 0.8; }
         .editing .save-chip .del-icon { display: inline; }
-
-        /* --- サイド電卓 --- */
-        .side-calc { 
-            flex: 1; 
-            min-width: 280px; 
-            background: #333; 
-            padding: 12px; 
-            border-radius: 10px; 
-            color: white; 
-            height: fit-content; 
-            position: sticky; 
-            top: 8px; 
-        }
-        .calc-display { 
-            width: 100%; 
-            height: 52px; 
-            background: #222; 
-            color: #fff; 
-            text-align: right; 
-            font-size: 1.8em; 
-            padding: 8px; 
-            border-radius: 6px; 
-            margin-bottom: 8px; 
-            border: none; 
-            outline: none; 
-        }
+        .utility-bar { display: flex; justify-content: center; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+        .util-btn { border: none; background: #6c757d; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold; min-width: 60px; }
+        .util-btn.manual { background: #17a2b8; width: auto; }
+        .util-btn.reset { background: #dc3545; }
+        .calc-display-wrap { position: relative; margin-bottom: 10px; }
+        .calc-display { width: 100%; height: 52px; background: #222; color: #fff; text-align: right; font-size: 1.8em; padding: 8px 45px 8px 8px; border-radius: 6px; border: none; outline: none; }
+        .calc-copy-btn-in { position: absolute; right: 5px; top: 5px; bottom: 5px; width: 40px; background: #007bff; border: none; border-radius: 4px; font-size: 1.2em; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0.9; color: white; }
         .calc-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-        .calc-btn { 
-            padding: 15px 5px; 
-            border: none; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-size: 1.25em; 
-            font-weight: bold; 
-            background: #555; 
-            color: white; 
-        }
+        .calc-btn { padding: 15px 5px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.25em; font-weight: bold; background: #555; color: white; }
         .calc-btn.op { background: #f39c12; }
         .calc-btn.equal { background: #27ae60; grid-column: span 2; }
         .calc-btn.clear { background: #c0392b; }
-
-        /* モバイル用電卓スタイル */
-        @media screen and (max-width: 900px) {
-            .side-calc { 
-                display: none; 
-                position: fixed; 
-                bottom: 80px; 
-                right: 15px; 
-                z-index: 1000; 
-                width: 280px; 
-                box-shadow: 0 0 20px rgba(0,0,0,0.5); 
-            }
-            .side-calc.active { display: block; }
-        }
-
-        /* --- モード切替ボタン --- */
-        .mode-toggle { display: flex; gap: 8px; margin-bottom: 12px; }
-        .mode-button { 
-            flex: 1; 
-            padding: 12px 8px; 
-            border: none; 
-            background: #ddd; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            min-height: 85px; 
-            color: #000; 
-            transition: 0.2s; 
-        }
-        .mode-button.active { background-color: #007bff; color: white; }
-        .mode-desc { font-size: 0.7em; margin-top: 6px; opacity: 0.9; font-weight: normal; line-height: 1.3; text-align: center; }
-
-        /* --- ユーティリティボタン --- */
-        .util-btn { border: none; background: #6c757d; color: white; padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold; }
-        
-        /* --- 通知メッセージ --- */
-        #saveMessage { 
-            position: fixed; 
-            top: 15px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            background: #000; 
-            color: #fff; 
-            padding: 12px 25px; 
-            border-radius: 25px; 
-            opacity: 0; 
-            transition: opacity 0.3s; 
-            z-index: 2000; 
-            pointer-events: none; 
-            font-weight: bold; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
-        }
-
-        /* --- モバイル用電卓起動ボタン --- */
-        .calc-toggle-btn { 
-            display: none; 
-            position: fixed; 
-            bottom: 15px; 
-            right: 15px; 
-            width: 60px; 
-            height: 60px; 
-            border-radius: 50%; 
-            background: #333; 
-            color: white; 
-            border: none; 
-            font-size: 28px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
-            z-index: 1001; 
-            cursor: pointer;
-        }
-        @media screen and (max-width: 900px) {
-            .calc-toggle-btn { display: block; }
-        }
-
-        /* --- モバイル用電卓閉じるボタン --- */
-        .mobile-calc-close {
-            display: none;
-            background: none; 
-            border: none; 
-            color: white; 
-            font-size: 1.5em; 
-            cursor: pointer;
-        }
-        @media screen and (max-width: 900px) {
-            .mobile-calc-close { display: block; }
-        }
+        #saveMessage { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); background: #000; color: #fff; padding: 12px 25px; border-radius: 25px; opacity: 0; transition: opacity 0.3s; z-index: 2000; pointer-events: none; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .calc-toggle-btn { display: none; position: fixed; bottom: 15px; right: 15px; width: 60px; height: 60px; border-radius: 50%; background: #333; color: white; border: none; font-size: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1001; cursor: pointer; }
+        .mobile-calc-close { display: none; background: none; border: none; color: white; font-size: 1.5em; cursor: pointer; }
+        .pro-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 3000; justify-content: center; align-items: center; padding: 20px; }
+        .pro-modal-overlay.active { display: flex; }
+        .pro-modal-content { background: #fff; padding: 25px; border-radius: 15px; text-align: center; max-width: 450px; width: 100%; box-shadow: 0 5px 20px rgba(0,0,0,0.3); animation: popIn 0.3s ease; }
+        .pro-title { font-size: 1.4em; font-weight: bold; margin-bottom: 10px; color: #333; }
+        .pro-desc { color: #666; margin-bottom: 20px; line-height: 1.6; text-align: left; white-space: pre-wrap; font-size: 0.95em; }
+        .pro-btn-buy { display: block; width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; font-weight: bold; text-decoration: none; border-radius: 25px; margin-bottom: 10px; border: none; cursor: pointer; font-size: 1.1em; }
+        .pro-btn-close { background: none; border: none; color: #999; cursor: pointer; text-decoration: underline; font-size: 0.9em; }
+        .text-area-import { width: 100%; height: 120px; padding: 10px; margin-bottom: 15px; background: #f9f9f9; border: 1px solid #ccc; border-radius: 8px; font-size: 0.9em; color: #333; resize: none; }
+        .title-pro-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: linear-gradient(135deg, #1a237e 0%, #000 100%); color: white; text-decoration: none; padding: 8px 20px; border-radius: 20px; font-weight: bold; font-size: 0.9em; box-shadow: 0 3px 6px rgba(0,0,0,0.15); margin: 0 auto 15px auto; transition: transform 0.2s; border:none; cursor:pointer; }
     </style>
 </head>
 <body onload="init()">
 
-    <div id="startLockScreen" style="
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: #1a237e; color: #fff; z-index: 99999;
-        display: flex; flex-direction: column; justify-content: center; align-items: center;
-        text-align: center;
-    ">
-        <h2 style="font-size: 24px; margin-bottom: 20px;">🔒 Simple Sheet PRO</h2>
-        <p style="margin-bottom: 10px;">Enter Passcode / パスコードを入力</p>
-        
-        <input type="password" id="inputPass" placeholder="****" style="
-            font-size: 24px; padding: 10px; border-radius: 8px; border: none; 
-            text-align: center; width: 200px; margin-bottom: 20px; color:#000;
-        ">
-        
-        <button onclick="checkStartPass()" style="
-            font-size: 18px; padding: 12px 40px; border-radius: 30px; border: none;
-            background: #28a745; color: white; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        ">
-            Unlock
-        </button>
-        
-        <p style="margin-top: 30px; font-size: 12px; opacity: 0.8;">
-            (Passcode is in the Android App)
-        </p>
+    <div id="startLockScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1a237e; color: #fff; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+        <h2 style="font-size: 24px; margin-bottom: 20px;">💎 Simple Sheet PRO</h2>
+        <p style="margin-bottom: 10px;">Enter Passcode</p>
+        <input type="password" id="inputPass" placeholder="****" style="font-size: 24px; padding: 10px; border-radius: 8px; border: none; text-align: center; width: 200px; margin-bottom: 20px; color:#000;">
+        <button onclick="checkStartPass()" style="font-size: 18px; padding: 12px 40px; border-radius: 30px; border: none; background: #28a745; color: white; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">Unlock</button>
+        <p style="margin-top: 30px; font-size: 12px; opacity: 0.8;">(Passcode is in the Android App)</p>
     </div>
 
-    <script>
-        // ★★★ 設定：2つのパスコードに対応 ★★★
-        const PASS_TEST = "1111"; // テスター用
-        const PASS_REAL = "5963"; // 本番リリース用
-
-        // 1. ページを開いた時のチェック
-        document.addEventListener('DOMContentLoaded', function() {
-            // すでに認証済み（ログイン済み）なら、ロック画面を消す
-            if(localStorage.getItem("proWebUnlocked") === "true") {
-                document.getElementById("startLockScreen").style.display = "none";
-            }
-        });
-
-        // 2. ボタンを押した時のチェック
-        function checkStartPass() {
-            const val = document.getElementById("inputPass").value;
-            // どちらか片方でも合っていればOK
-            if(val === PASS_TEST || val === PASS_REAL) {
-                alert("Authenticated! / 認証成功");
-                localStorage.setItem("proWebUnlocked", "true"); // 記憶する
-                document.getElementById("startLockScreen").style.display = "none"; // カーテンを開ける
-            } else {
-                alert("Wrong Passcode / 間違っています");
-                document.getElementById("inputPass").value = ""; // 入力を消す
-            }
-        }
-    </script>
     <div id="saveMessage"></div>
+
+    <div id="manualModal" class="pro-modal-overlay">
+        <div class="pro-modal-content">
+            <div id="manTitle" class="pro-title" style="text-align:center; border-bottom:1px solid #eee; padding-bottom:10px;">Manual</div>
+            <div id="manBody" class="pro-desc" style="margin-top:15px; max-height: 400px; overflow-y: auto;"></div>
+            <button class="pro-btn-close" onclick="closeModal('manualModal')" id="manClose" style="width:100%; text-decoration:none; background:#eee; padding:10px; border-radius:20px; font-weight:bold; color:#555;">OK</button>
+        </div>
+    </div>
+
+    <div id="importModal" class="pro-modal-overlay">
+        <div class="pro-modal-content" style="max-width:350px;">
+            <div class="pro-title" id="impTitle">Import Data</div>
+            <div class="pro-desc" id="impDesc" style="text-align:center; margin-bottom:10px;">Paste data here:</div>
+            <textarea id="importText" class="text-area-import" placeholder='Paste code here...'></textarea>
+            <button class="pro-btn-buy" id="btnDoImport" onclick="executeImport()" style="background: #007bff;">Load Data</button>
+            <button class="pro-btn-close" id="btnCloseImp" onclick="closeModal('importModal')">Close</button>
+        </div>
+    </div>
     
     <button class="calc-toggle-btn" onclick="toggleCalc()">🧮</button>
 
     <div class="app-grid">
-        <div class="calculator-container">
+        <div class="memo-container">
+            <h3 id="memoTitle" style="margin: 0 0 10px 0; font-size: 1.1em; text-align: center; color: #555;">📝 Memo</h3>
+            <textarea id="memoArea" class="memo-area" placeholder="Write notes here..." oninput="updateMemoLinks(); saveSettings();"></textarea>
+            <div id="memoLinks" class="memo-links"></div>
+        </div>
+
+        <div class="sheet-container">
             <div class="top-controls" style="display:flex; justify-content: space-between; align-items: center; margin-bottom:10px; flex-wrap: wrap; gap:8px;">
-                <div style="flex:1; display:flex; align-items:center; border:2px solid #000; border-radius:6px; padding:6px 10px; min-width:180px; background:#fff;">
+                <div style="flex:1; display:flex; align-items:center; border:2px solid #000; border-radius:6px; padding:6px 10px; min-width:140px; background:#fff;">
                     <span id="labelNameSpan" style="font-size:0.8em; color:#000; font-weight:bold; margin-right:8px;">Name:</span>
                     <input type="text" id="masterLabel" style="border:none; outline:none; font-weight:bold; width:100%; color:#000;" oninput="saveSettings()">
                 </div>
-                <div id="langContainer" style="display:flex; gap:3px; flex-wrap: wrap;"></div>
+                <div style="display:flex; gap:5px; align-items:center;">
+                    <div id="langContainer" style="display:flex; gap:3px; flex-wrap: wrap;"></div>
+                </div>
             </div>
 
             <div class="storage-bar">
                 <div class="storage-controls">
-                    <button class="save-btn-main" onclick="saveToMemory()">💾 <span id="btnSaveMemory">記憶する</span></button>
-                    <button id="editToggle" class="edit-toggle-btn" onclick="toggleEditMode()">Edit ✎</button>
+                    <button class="save-btn-main" onclick="saveToMemory()">💾 <span id="btnSaveMemory">Save</span></button>
+                    <button id="editToggle" class="edit-toggle-btn" onclick="toggleEditMode()">🗑️</button>
                 </div>
                 <div id="saveList" class="save-list-container"></div>
             </div>
 
-            <h2 id="title" style="font-weight: bold; margin-bottom: 12px;">Simple Sheet PRO</h2>
+            <h2 id="title" style="font-weight: bold; margin-bottom: 15px; text-align:center;">Simple Sheet PRO</h2>
 
-            <div class="utility-bar" style="display:flex; justify-content: center; gap:4px; margin-bottom:12px; flex-wrap:wrap;">
+            <div class="utility-bar">
+                <button class="util-btn manual" style="width: auto; background:#17a2b8;" onclick="openManual()" id="btnManual">📖 Manual</button>
                 <button class="util-btn" onclick="clearNumbers()">🧹 <span id="btnClear">Clear</span></button>
                 <button class="util-btn" onclick="exportData()">📤 <span id="btnExport">Exp</span></button>
-                <button class="util-btn" onclick="importData()">📥 <span id="btnImport">Imp</span></button>
-                <button class="util-btn" style="background:#dc3545;" onclick="fullReset()">🔄 <span id="btnReset">Reset</span></button>
+                <button class="util-btn" onclick="openImport()">📥 <span id="btnImport">Imp</span></button>
+                <button class="util-btn reset" onclick="fullReset()">🔄 <span id="btnReset">Reset</span></button>
             </div>
 
-            <div class="mode-toggle">
-                <button id="smartSheetBtn" class="mode-button active" onclick="switchMode('smartSheet')">
-                    <span id="txtModeBase">From Base</span>
-                    <span id="descModeBase" class="mode-desc"></span>
-                </button>
-                <button id="customSimpleBtn" class="mode-button" onclick="switchMode('customSimple')">
-                    <span id="txtModePrev">Flow</span>
-                    <span id="descModePrev" class="mode-desc"></span>
-                </button>
-            </div>
-
-            <div id="smart-sheet-mode">
+            <div id="main-sheet-mode">
                 <div class="master-row">
                     <label id="masterLabelStart" style="font-weight:bold; color:#dc3545;">Base Value</label>
-                    <input type="number" id="masterInput" class="master-input" step="any" placeholder="1000" oninput="updateDisplay()">
+                    <input type="number" id="masterInput" class="master-input" step="any" placeholder="" oninput="updateDisplay()">
                 </div>
-                <div id="rows-container-smart"></div>
+                <div id="rows-container"></div>
                 <div style="text-align: center; margin-top: 15px; display: flex; gap: 8px;">
-                    <button class="mode-button" id="addBtnInd" style="background:#28a745; color:white; flex-direction:row; min-height:auto;" onclick="addRowSmart()">+ Row</button>
-                    <button class="mode-button" id="copyBtnInd" style="background:#007bff; color:white; flex-direction:row; min-height:auto;" onclick="copyPage('smart')">Copy All</button>
-                </div>
-            </div>
-
-            <div id="custom-simple-mode" style="display: none;">
-                <div class="master-row">
-                    <label id="masterLabelStartSimple" style="font-weight:bold; color:#dc3545;">Base Value</label>
-                    <input type="number" id="masterInputSimple" class="master-input" step="any" placeholder="1000" oninput="updateDisplay()">
-                </div>
-                <div id="rows-container-simple"></div>
-                <div style="text-align: center; margin-top: 15px; display: flex; gap: 8px;">
-                    <button class="mode-button" id="addBtnSeq" style="background:#28a745; color:white; flex-direction:row; min-height:auto;" onclick="addRowSimple()">+ Row</button>
-                    <button class="mode-button" id="copyBtnSeq" style="background:#007bff; color:white; flex-direction:row; min-height:auto;" onclick="copyPage('custom')">Copy All</button>
+                    <button class="mode-button" id="addBtn" style="background:#28a745; color:white; flex-direction:row; min-height:auto; width:100%; justify-content:center; border:none; border-radius:6px; padding:12px; font-weight:bold; font-size:1.1rem; cursor:pointer;" onclick="addRow()">+ Row</button>
+                    <button class="mode-button" id="copyBtn" style="background:#007bff; color:white; flex-direction:row; min-height:auto; width:100%; justify-content:center; border:none; border-radius:6px; padding:12px; font-weight:bold; font-size:1.1rem; cursor:pointer;" onclick="copyPage()">All Copy</button>
                 </div>
             </div>
         </div>
@@ -468,13 +187,12 @@
                 <h3 id="ui-calcTitle" style="margin:0;">Calculator</h3>
                 <button class="mobile-calc-close" onclick="toggleCalc()">×</button>
             </div>
-            
-            <div style="display:flex; gap:5px; margin-bottom:10px;">
+            <div class="calc-display-wrap">
                 <input type="text" id="calcDisplay" class="calc-display" readonly value="0">
-                <button class="calc-btn" style="background:#007bff; width:52px;" onclick="copyCalcResult()">📋</button>
+                <button class="calc-copy-btn-in" onclick="copyCalcResult()">📋</button>
             </div>
             <div class="calc-buttons">
-                <button class="calc-btn clear" onclick="calcClear()">AC</button>
+                <button class="calc-btn clear" onclick="calcInput('AC')">AC</button>
                 <button class="calc-btn op" onclick="calcInput('%')">%</button>
                 <button class="calc-btn op" onclick="calcInput('/')">÷</button>
                 <button class="calc-btn op" onclick="calcInput('*')">×</button>
@@ -491,32 +209,51 @@
                 <button class="calc-btn" onclick="calcInput('3')">3</button>
                 <button class="calc-btn" onclick="calcInput('.')">.</button>
                 <button class="calc-btn" onclick="calcInput('0')">0</button>
-                <button class="calc-btn clear" style="background:#e67e22;" onclick="calcBack()">C</button>
+                <button class="calc-btn clear" style="background:#e67e22;" onclick="calcInput('BS')">⌫</button>
                 <button class="calc-btn equal" onclick="calcResult()">=</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- 言語定義 ---
-        const languageMap = {
-            en: { title: "Simple Sheet PRO", modeBase: "From Base", descBase: "Fixed: All rows refer to the top base value", modePrev: "Flow", descPrev: "Sequential calc. Choose 🏠 or 🔗 for each row.", masterLabelName: "Name:", masterLabelStart: "Base Value", rowLabel: "Label", copyMsg: "Copied!", btnClear: "Clear", btnExport: "Exp", btnImport: "Imp", btnReset: "Reset", confirmReset: "Reset all?", addRow: "+ Row", copyAll: "Copy All", calcTitle: "Calculator", btnSave: "Save", msgSave: "Saved!", msgLoad: "Loaded!", confirmDel: "Delete this memory?", btnEdit: "Edit", btnDone: "Done", msgExported: "Exported!", promptImport: "Paste code:", msgError: "Error" },
-            ja: { title: "Simple Sheet PRO", modeBase: "元の値から", descBase: "固定参照：すべての行が一番上の数値を参照します", modePrev: "フロー計算", descPrev: "上から順に計算。各行で 🏠 または 🔗 を選択可能。", masterLabelName: "計算名:", masterLabelStart: "元の数字", rowLabel: "項目名", copyMsg: "コピー完了", btnClear: "クリア", btnExport: "出力", btnImport: "読込", btnReset: "初期化", confirmReset: "全削除しますか？", addRow: "+ 行追加", copyAll: "全コピー", calcTitle: "電卓", btnSave: "記憶する", msgSave: "記憶しました", msgLoad: "読み込みました", confirmDel: "この記憶を削除しますか？", btnEdit: "編集", btnDone: "完了", msgExported: "出力しました", promptImport: "コードを貼り付け:", msgError: "エラー" },
-            zh: { title: "Simple Sheet PRO", modeBase: "从初始值", descBase: "固定引用：每一行都引用顶部的初始值进行计算", modePrev: "流程模式", descPrev: "自上而下计算。每行可选 🏠 或 🔗 模式。", masterLabelName: "名称:", masterLabelStart: "初始值", rowLabel: "项目", copyMsg: "已复制", btnClear: "清除", btnExport: "导出", btnImport: "导入", btnReset: "重置", confirmReset: "确认重置所有数据？", addRow: "+ 添加行", copyAll: "复制全部", calcTitle: "计算器", btnSave: "保存", msgSave: "已保存", msgLoad: "已加载", confirmDel: "删除此记忆？", btnEdit: "编辑", btnDone: "完成", msgExported: "已导出", promptImport: "请粘贴代码:", msgError: "错误" },
-            ko: { title: "Simple Sheet PRO", modeBase: "기준값에서", descBase: "고정 참조: 모든 행이 최상단의 기준값을 참조합니다", modePrev: "플로우 모드", descPrev: "순차 계산. 각 행에서 🏠 또는 🔗 선택 가능.", masterLabelName: "이름:", masterLabelStart: "기준값", rowLabel: "항목명", copyMsg: "복사됨", btnClear: "지우기", btnExport: "내보내기", btnImport: "가져오기", btnReset: "초기화", confirmReset: "전체 초기화하시겠습니까?", addRow: "+ 행 추가", copyAll: "전체 복사", calcTitle: "계산기", btnSave: "저장", msgSave: "저장됨", msgLoad: "로드됨", confirmDel: "삭제하시겠습니까?", btnEdit: "편집", btnDone: "완료", msgExported: "내보내기 완료", promptImport: "코드를 붙여넣으세요:", msgError: "오류" },
-            es: { title: "Simple Sheet PRO", modeBase: "Desde Base", descBase: "Referencia fija: cada fila usa el valor inicial superior", modePrev: "Flujo", descPrev: "Cálculo en cadena. Elige 🏠 o 🔗 por fila.", masterLabelName: "Nombre:", masterLabelStart: "Valor Base", rowLabel: "Etiqueta", copyMsg: "¡Copiado!", btnClear: "Borrar", btnExport: "Exportar", btnImport: "Importar", btnReset: "Reiniciar", confirmReset: "¿Reiniciar todo?", addRow: "+ Fila", copyAll: "Copiar todo", calcTitle: "Calculadora", btnSave: "Guardar", msgSave: "¡Guardado!", msgLoad: "¡Cargado!", confirmDel: "¿Eliminar?", btnEdit: "Editar", btnDone: "Listo", msgExported: "¡Exportado!", promptImport: "Pegar código:", msgError: "Error" },
-            fr: { title: "Simple Sheet PRO", modeBase: "Depuis Base", descBase: "Réf. fixe : chaque ligne utilise la valeur du haut", modePrev: "Flux", descPrev: "Calcul en chaîne. Choisissez 🏠 ou 🔗 par ligne.", masterLabelName: "Nom :", masterLabelStart: "Valeur de base", rowLabel: "Libellé", copyMsg: "Copié !", btnClear: "Effacer", btnExport: "Export", btnImport: "Import", btnReset: "RàZ", confirmReset: "Tout réinitialiser ?", addRow: "+ Ligne", copyAll: "Tout copier", calcTitle: "Calculatrice", btnSave: "Sauver", msgSave: "Enregistré", msgLoad: "Chargé", confirmDel: "Supprimer ?", btnEdit: "Modifier", btnDone: "OK", msgExported: "Exporté !", promptImport: "Coller le code :", msgError: "Erreur" },
-            pt: { title: "Simple Sheet PRO", modeBase: "Da Base", descBase: "Ref. fixa: cada linha usa o valor inicial do topo", modePrev: "Fluxo", descPrev: "Cálculo em cadeia. Escolha 🏠 ou 🔗 por linha.", masterLabelName: "Nome:", masterLabelStart: "Valor Base", rowLabel: "Rótulo", copyMsg: "Copiado!", btnClear: "Limpar", btnExport: "Exportar", btnImport: "Importar", btnReset: "Reset", confirmReset: "Reiniciar tudo?", addRow: "+ Linha", copyAll: "Copiar tudo", calcTitle: "Calculadora", btnSave: "Salvar", msgSave: "Salvo", msgLoad: "Carregado", confirmDel: "Excluir?", btnEdit: "Editar", btnDone: "Concluir", msgExported: "Exportado!", promptImport: "Cole o código:", msgError: "Erro" },
-            de: { title: "Simple Sheet PRO", modeBase: "Vom Basiswert", descBase: "Feste Referenz: Jede Zeile nutzt den oberen Basiswert", modePrev: "Flow", descPrev: "Kettenrechnung. Wählen Sie 🏠 oder 🔗 pro Zeile.", masterLabelName: "Name:", masterLabelStart: "Basiswert", rowLabel: "Label", copyMsg: "Kopiert!", btnClear: "Löschen", btnExport: "Export", btnImport: "Import", btnReset: "Reset", confirmReset: "Alles zurücksetzen?", addRow: "+ Zeile", copyAll: "Alles kopieren", calcTitle: "Rechner", btnSave: "Speichern", msgSave: "Gespeichert", msgLoad: "Geladen", confirmDel: "Löschen?", btnEdit: "Bearbeiten", btnDone: "Fertig", msgExported: "Exportiert!", promptImport: "Code einfügen:", msgError: "Fehler" },
-            it: { title: "Simple Sheet PRO", modeBase: "Dalla Base", descBase: "Rif. fisso: ogni riga usa il valore iniziale in alto", modePrev: "Flusso", descPrev: "Calcolo a catena. Scegli 🏠 o 🔗 per riga.", masterLabelName: "Nome:", masterLabelStart: "Valore Base", rowLabel: "Etichetta", copyMsg: "Copiato!", btnClear: "Cancella", btnExport: "Esporta", btnImport: "Importa", btnReset: "Reset", confirmReset: "Ripristinare tutto?", addRow: "+ Riga", copyAll: "Copia tutto", calcTitle: "Calcolatrice", btnSave: "Salva", msgSave: "Salvato", msgLoad: "Caricato", confirmDel: "Elimina?", btnEdit: "Modifica", btnDone: "Fatto", msgExported: "Esportato!", promptImport: "Incolla codice:", msgError: "Errore" }
+        const fullManual = {
+            ja: "Simple Sheet について\n\n電卓より整理できて、\nスプレッドシートほど複雑ではありません。\n\nSimple Sheet は、\n計算を整理して残すためのアプリです。\n\n足す、引く、掛ける、割る、\nこの4つの計算で構成します。\n計算の流れはそのまま残ります。\n\n【コピーと出力の違い】\n■ オールコピー (表として使う)\n計算結果を表としてコピーします。\nExcel や Google スプレッドシートに貼り付けて使えます。\n(JSONコードは含まれません)\n\n■ 出力 (データとして使う)\n計算データそのものをコピーします。\nSimple Sheet に貼り付けて、共有・再編集できます。\n\n【読込(インポート)】\nコピーしたテキストを読込画面に貼り付けます。\n\n挨拶文などが混ざっていても、自動でデータだけを抜き出します。\n\n※データの保存とメモの作成は、Pro版の機能になります。",
+            en: "About Simple Sheet\n\nMore organized than a calculator,\nLess complicated than a spreadsheet.\n\nSimple Sheet is an app for organizing and keeping your calculations.\n\nIt consists of four basic calculations: Add, Subtract, Multiply, and Divide.\nThe flow of calculation remains as it is.\n\n[Difference between Copy and Export]\n■ All Copy (Use as Table)\nCopies the calculation results as a table.\nYou can paste it into Excel or Google Sheets to use it.\n(JSON code is not included)\n\n■ Export (Use as Data)\nCopies the calculation data itself.\nPaste it into Simple Sheet to share and re-edit.\n\n[Import]\nPaste the copied text into the Import screen.\n\nEven if there are greetings or other text mixed in, it will automatically extract only the data.\n\n* Saving data and creating memos are Pro version features.",
+            zh: "关于 Simple Sheet\n\n比计算器更有条理，\n不像电子表格那么复杂。\n\nSimple Sheet 是一个用于整理和保留计算的应用程序。\n\n它由四种基本计算组成：加、减、乘、除。\n计算流程将保留下来。\n\n【复制与导出的区别】\n■ 全部复制 (用作表格)\n将计算结果作为表格复制。\n您可以将其粘贴到 Excel 或 Google 表格中使用。\n(不包含 JSON 代码)\n\n■ 导出 (用作数据)\n复制计算数据本身。\n将其粘贴到 Simple Sheet 中以共享和重新编辑。\n\n【导入】\n将复制的文本粘贴到导入屏幕。\n\n即使混合了问候语或其他文本，它也会自动仅提取数据。\n\n* 保存数据和创建备忘录是 Pro 版本的功能。",
+            ko: "Simple Sheet 정보\n\n계산기보다 정리하기 쉽고,\n스프레드시트만큼 복잡하지 않습니다.\n\nSimple Sheet는 계산을 정리하고 남기기 위한 앱입니다.\n\n더하기, 빼기, 곱하기, 나누기,\n이 4가지 계산으로 구성됩니다.\n계산 흐름은 그대로 남습니다.\n\n【복사와 내보내기의 차이】\n■ 전체 복사 (표로 사용)\n계산 결과를 표로 복사합니다.\nExcel이나 Google 스프레드시트에 붙여넣어 사용할 수 있습니다.\n(JSON 코드는 포함되지 않습니다)\n\n■ 내보내기 (데이터로 사용)\n계산 데이터 자체를 복사합니다.\nSimple Sheet에 붙여넣어 공유 및 재편집할 수 있습니다.\n\n【가져오기 (임포트)】\n복사한 텍스트를 가져오기 화면에 붙여넣습니다.\n\n인사말 등이 섞여 있어도 자동으로 데이터만 추출합니다.\n\n※ 데이터 저장 및 메모 작성은 Pro 버전의 기능입니다.",
+            es: "Sobre Simple Sheet\n\nMás organizado que una calculadora,\nMenos complicado que una hoja de cálculo.\n\nSimple Sheet es una aplicación para organizar y guardar tus cálculos.\n\nConsiste en cuatro cálculos básicos: Sumar, Restar, Multiplicar y Dividir.\nEl flujo del cálculo permanece tal cual.\n\n[Diferencia entre Copiar y Exportar]\n■ Copiar Todo (Usar como Tabla)\nCopia los resultados del cálculo como una tabla.\nPuedes pegarlo en Excel o Google Sheets para usarlo.\n(El código JSON no está incluido)\n\n■ Exportar (Usar como Datos)\nCopia los propios datos del cálculo.\nPégalo en Simple Sheet para compartir y re-editar.\n\n[Importar]\nPegue el texto copiado en la pantalla de Importación.\n\nIncluso si hay saludos u otro texto mezclado, extraerá automáticamente solo los datos.\n\n* Guardar datos y crear notas son funciones de la versión Pro.",
+            pt: "Sobre o Simple Sheet\n\nMais organizado que uma calculadora,\nMenos complicado que uma planilha.\n\nSimple Sheet é um aplicativo para organizar e manter seus cálculos.\n\nConsiste em quatro cálculos básicos: Somar, Subtrair, Multiplicar e Dividir.\nO fluxo de cálculo permanece como está.\n\n[Diferença entre Copiar e Exportar]\n■ Copiar Tudo (Usar como Tabela)\nCopia os resultados do cálculo como uma tabela.\nVocê pode colar no Excel ou Google Sheets para usar.\n(O código JSON não está incluído)\n\n■ Exportar (Usar como Dados)\nCopia os próprios dados de cálculo.\nCole no Simple Sheet para compartilhar e reeditar.\n\n[Importar]\nCole o texto copiado na tela de Importação.\n\nMesmo se houver saudações ou outro texto misturado, ele extrairá automaticamente apenas os dados.\n\n* Salvar dados e criar notas são recursos da versão Pro.",
+            fr: "À propos de Simple Sheet\n\nPlus organisé qu'une calculatrice,\nMoins compliqué qu'un tableur.\n\nSimple Sheet est une application pour organiser et conserver vos calculs.\n\nElle se compose de quatre calculs de base : Additionner, Soustraire, Multiplier et Diviser.\nLe flux de calcul reste tel quel.\n\n[Différence entre Copier et Exporter]\n■ Tout Copier (Utiliser comme Tableau)\nCopie les résultats du calcul sous forme de tableau.\nVous pouvez le coller dans Excel ou Google Sheets pour l'utiliser.\n(Le code JSON n'est pas inclus)\n\n■ Exporter (Utiliser comme Données)\nCopie les données de calcul elles-mêmes.\nCollez-le dans Simple Sheet pour partager et rééditer.\n\n[Importer]\nCollez le texte copié dans l'écran d'Importation.\n\nMême s'il y a des salutations ou d'autres textes mélangés, il extraira automatiquement uniquement les données.\n\n* L'enregistrement des données et la création de notes sont des fonctionnalités de la version Pro.",
+            ru: "О Simple Sheet\n\nБолее организованно, чем калькулятор,\nМенее сложно, чем электронная таблица.\n\nSimple Sheet - это приложение для организации и сохранения ваших расчетов.\n\nОно состоит из четырех основных вычислений: Сложение, Вычитание, Умножение и Деление.\nХод вычислений остается неизменным.\n\n[Разница между Копировать и Экспорт]\n■ Копия (Использовать как таблицу)\nКопирует результаты вычислений в виде таблицы.\nВы можете вставить ее в Excel или Google Таблицы для использования.\n(Код JSON не включен)\n\n■ Экспорт (Использовать как данные)\nКопирует сами данные вычислений.\nВставьте их в Simple Sheet для обмена и повторного редактирования.\n\n[Импорт]\nВставьте скопированный текст на экран Импорта.\n\nДаже если в тексте есть приветствия или другой текст, приложение автоматически извлечет только данные.\n\n* Сохранение данных и создание заметок — это функции версии Pro.",
+            de: "Über Simple Sheet\n\nOrganisierter als ein Taschenrechner,\nWeniger kompliziert als eine Tabellenkalkulation.\n\nSimple Sheet ist eine App zum Organisieren und Aufbewahren Ihrer Berechnungen.\n\nEs besteht aus vier Grundrechenarten: Addieren, Subtrahieren, Multiplizieren und Dividieren.\nDer Rechenweg bleibt erhalten.\n\n[Unterschied zwischen Kopieren und Exportieren]\n■ Alles Kopieren (Als Tabelle verwenden)\nKopiert die Berechnungsergebnisse als Tabelle.\nSie können sie in Excel oder Google Sheets einfügen und verwenden.\n(JSON-Code ist nicht enthalten)\n\n■ Exportieren (Als Daten verwenden)\nKopiert die Berechnungsdaten selbst.\nFügen Sie sie in Simple Sheet ein, um sie zu teilen und erneut zu bearbeiten.\n\n[Importieren]\nFügen Sie den kopierten Text in den Import-Bildschirm ein.\n\nSelbst wenn Begrüßungen oder anderer Text enthalten sind, werden automatisch nur die Daten extrahiert.\n\n* Das Speichern von Daten und das Erstellen von Notizen sind Funktionen der Pro-Version."
         };
+
+        const languageMap = {
+            en: { title: "Simple Sheet PRO", masterLabelName: "Name:", masterLabelStart: "Base Value", rowLabel: "Label", copyMsg: "Copied!", btnClear: "Clear", btnExport: "Export", btnImport: "Import", btnReset: "Reset", confirmReset: "Reset all?", addRow: "+ Row", copyAll: "📋 All Copy", calcTitle: "Calculator", btnSave: "Save", btnDone: "Done",
+                  manual: "📖 Manual", btnClose: "Close", msgSave: "Saved!", msgLoad: "Loaded!", confirmDel: "Delete?", msgExported: "Data Code Copied!", msgError: "Error", impTitle:"Import Data", impDesc:"Paste data here:", btnLoad:"Load Data", memoTitle: "📝 Memo" },
+            ja: { title: "Simple Sheet PRO", masterLabelName: "計算名:", masterLabelStart: "元の数字", rowLabel: "項目名", copyMsg: "コピー完了", btnClear: "クリア", btnExport: "出力", btnImport: "読込", btnReset: "初期化", confirmReset: "全削除しますか？", addRow: "+ 行追加", copyAll: "📋 オールコピー", calcTitle: "電卓", btnSave: "記憶する", btnDone: "完了",
+                  manual: "📖 説明書", btnClose: "閉じる", msgSave: "保存しました", msgLoad: "読み込みました", confirmDel: "削除しますか？", msgExported: "データコードをコピーしました", msgError: "エラー", impTitle:"データの読込", impDesc:"ここにデータを貼り付け:", btnLoad:"読込開始", memoTitle: "📝 メモ帳" },
+            zh: { title: "Simple Sheet PRO", masterLabelName: "名称:", masterLabelStart: "初始值", rowLabel: "项目", copyMsg: "已复制", btnClear: "清除", btnExport: "导出", btnImport: "导入", btnReset: "重置", confirmReset: "确认重置所有数据？", addRow: "+ 添加行", copyAll: "📋 全部复制", calcTitle: "计算器", btnSave: "保存", btnDone: "完成",
+                  manual: "📖 说明书", btnClose: "关闭", msgSave: "已保存", msgLoad: "已加载", confirmDel: "删除？", msgExported: "代码已复制", msgError: "错误", impTitle:"导入数据", impDesc:"粘贴代码:", btnLoad:"加载", memoTitle: "📝 备忘录" },
+            ko: { title: "Simple Sheet PRO", masterLabelName: "이름:", masterLabelStart: "기준값", rowLabel: "항목명", copyMsg: "복사됨", btnClear: "지우기", btnExport: "내보내기", btnImport: "가져오기", btnReset: "초기화", confirmReset: "전체 초기화하시겠습니까?", addRow: "+ 행 추가", copyAll: "📋 전체 복사", calcTitle: "계산기", btnSave: "저장", btnDone: "완료",
+                  manual: "📖 설명서", btnClose: "닫기", msgSave: "저장됨", msgLoad: "로드됨", confirmDel: "삭제?", msgExported: "코드 복사됨", msgError: "오류", impTitle:"데이터 가져오기", impDesc:"코드 붙여넣기:", btnLoad:"로드", memoTitle: "📝 메모" },
+            es: { title: "Simple Sheet PRO", masterLabelName: "Nombre:", masterLabelStart: "Valor Base", rowLabel: "Etiqueta", copyMsg: "¡Copiado!", btnClear: "Borrar", btnExport: "Exportar", btnImport: "Importar", btnReset: "Reiniciar", confirmReset: "¿Reiniciar todo?", addRow: "+ Fila", copyAll: "📋 Copiar Todo", calcTitle: "Calculadora", btnSave: "Guardar", btnDone: "Listo",
+                  manual: "📖 Manual", btnClose: "Cerrar", msgSave: "¡Guardado!", msgLoad: "¡Cargado!", confirmDel: "¿Eliminar?", msgExported: "¡Código copiado!", msgError: "Error", impTitle:"Importar", impDesc:"Pegar código:", btnLoad:"Cargar", memoTitle: "📝 Nota" },
+            pt: { title: "Simple Sheet PRO", masterLabelName: "Nome:", masterLabelStart: "Valor Base", rowLabel: "Rótulo", copyMsg: "Copiado!", btnClear: "Limpar", btnExport: "Exportar", btnImport: "Importar", btnReset: "Reset", confirmReset: "Reiniciar tudo?", addRow: "+ Linha", copyAll: "📋 Copiar Tudo", calcTitle: "Calculadora", btnSave: "Salvar", btnDone: "Concluir",
+                  manual: "📖 Manual", btnClose: "Fechar", msgSave: "Salvo", msgLoad: "Carregado", confirmDel: "Excluir?", msgExported: "Código copiado!", msgError: "Erro", impTitle:"Importar", impDesc:"Cole o código:", btnLoad:"Carregar", memoTitle: "📝 Nota" },
+            fr: { title: "Simple Sheet PRO", masterLabelName: "Nom :", masterLabelStart: "Valeur de base", rowLabel: "Libellé", copyMsg: "Copié !", btnClear: "Effacer", btnExport: "Export", btnImport: "Import", btnReset: "RàZ", confirmReset: "Tout réinitialiser ?", addRow: "+ Ligne", copyAll: "📋 Tout Copier", calcTitle: "Calculatrice", btnSave: "Sauver", btnDone: "OK",
+                  manual: "📖 Manuel", btnClose: "Fermer", msgSave: "Enregistré", msgLoad: "Chargé", confirmDel: "Supprimer ?", msgExported: "Code copié !", msgError: "Erreur", impTitle:"Importer", impDesc:"Coller code:", btnLoad:"Charger", memoTitle: "📝 Note" },
+            ru: { title: "Simple Sheet PRO", masterLabelName: "Имя:", masterLabelStart: "База", rowLabel: "Метка", copyMsg: "Скопировано!", btnClear: "Сброс", btnExport: "Эксп.", btnImport: "Имп.", btnReset: "Сброс", confirmReset: "Сбросить всё?", addRow: "+ Ряд", copyAll: "📋 Копия", calcTitle: "Калькулятор", btnSave: "Сохр.", btnDone: "Готово",
+                  manual: "📖 Инфо", btnClose: "Закрыть", msgSave: "Сохранено!", msgLoad: "Загружено!", confirmDel: "Удалить?", msgExported: "Код скопирован!", msgError: "Ошибка", impTitle:"Импорт", impDesc:"Вставьте код:", btnLoad:"Загрузить", memoTitle: "📝 Заметка" },
+            de: { title: "Simple Sheet PRO", masterLabelName: "Name:", masterLabelStart: "Basiswert", rowLabel: "Label", copyMsg: "Kopiert!", btnClear: "Löschen", btnExport: "Export", btnImport: "Import", btnReset: "Reset", confirmReset: "Alles zurücksetzen?", addRow: "+ Zeile", copyAll: "📋 Alles Kopieren", calcTitle: "Rechner", btnSave: "Speichern", btnDone: "Fertig",
+                  manual: "📖 Anleitung", btnClose: "Schließen", msgSave: "Gespeichert!", msgLoad: "Geladen!", confirmDel: "Löschen?", msgExported: "Code kopiert!", msgError: "Fehler", impTitle:"Importieren", impDesc:"Code hier einfügen:", btnLoad:"Laden", memoTitle: "📝 Notiz" }
+        };
+
         let currentLanguage = 'en'; 
         let isEditMode = false;
         let currentCalc = "0";
 
-        // --- 初期化 ---
         function init() {
-            // 言語ボタン生成
             const langCont = document.getElementById('langContainer');
             Object.keys(languageMap).forEach(lang => {
                 const btn = document.createElement('button');
@@ -526,152 +263,192 @@
                 langCont.appendChild(btn);
             });
 
-            // 保存された設定の読み込み
-            const s = JSON.parse(localStorage.getItem('simpleSheetSettings') || '{}');
+            let saved = localStorage.getItem('simpleSheetLang_pro');
+            if(!saved) {
+                const browserLang = navigator.language.slice(0, 2);
+                if(languageMap[browserLang]) saved = browserLang;
+                else saved = 'en';
+            }
+            setLanguage(saved); 
+            
+            const s = JSON.parse(localStorage.getItem('simpleSheetSettings_pro') || '{}');
             applyData(s);
-            setLanguage(localStorage.getItem('simpleSheetLang') || 'en'); 
             renderSaveList();
+            updateMemoLinks();
         }
 
-        // --- 言語設定 ---
         function setLanguage(lang) {
             currentLanguage = lang; 
-            localStorage.setItem('simpleSheetLang', lang);
+            localStorage.setItem('simpleSheetLang_pro', lang);
             const d = languageMap[lang];
             
-            // UIテキスト更新
             document.getElementById('title').textContent = d.title;
-            document.getElementById('txtModeBase').textContent = d.modeBase;
-            document.getElementById('descModeBase').textContent = d.descBase;
-            document.getElementById('txtModePrev').textContent = d.modePrev;
-            document.getElementById('descModePrev').textContent = d.descPrev;
             document.getElementById('labelNameSpan').textContent = d.masterLabelName;
             document.getElementById('masterLabelStart').textContent = d.masterLabelStart;
-            document.getElementById('masterLabelStartSimple').textContent = d.masterLabelStart;
             document.getElementById('btnClear').textContent = d.btnClear;
             document.getElementById('btnExport').textContent = d.btnExport;
             document.getElementById('btnImport').textContent = d.btnImport;
             document.getElementById('btnReset').textContent = d.btnReset;
-            document.getElementById('addBtnInd').textContent = d.addRow;
-            document.getElementById('addBtnSeq').textContent = d.addRow;
-            document.getElementById('copyBtnInd').textContent = d.copyAll;
-            document.getElementById('copyBtnSeq').textContent = d.copyAll;
+            document.getElementById('addBtn').textContent = d.addRow;
+            document.getElementById('copyBtn').textContent = d.copyAll;
             document.getElementById('ui-calcTitle').textContent = d.calcTitle;
             document.getElementById('btnSaveMemory').textContent = d.btnSave;
+            document.getElementById('manTitle').textContent = d.manual;
+            document.getElementById('manBody').innerText = fullManual[lang] || fullManual['en']; // マニュアル本文
+            document.getElementById('manClose').textContent = d.btnClose;
+            document.getElementById('btnManual').textContent = d.manual;
+            document.getElementById('impTitle').textContent = d.impTitle;
+            document.getElementById('impDesc').textContent = d.impDesc;
+            document.getElementById('btnDoImport').textContent = d.btnLoad;
+            document.getElementById('btnCloseImp').textContent = d.btnClose;
+            if(document.getElementById('memoTitle')) document.getElementById('memoTitle').textContent = d.memoTitle;
             
             const editBtn = document.getElementById('editToggle');
-            editBtn.textContent = isEditMode ? (d.btnDone + ' ✓') : (d.btnEdit + ' ✎');
+            editBtn.textContent = isEditMode ? '✓' : '🗑️';
             
-            document.querySelectorAll('.text-label-input').forEach(input => {
-                input.placeholder = d.rowLabel;
-            });
-
+            document.querySelectorAll('.text-label-input').forEach(input => { input.placeholder = d.rowLabel; });
             updateDisplay();
         }
 
-        // --- 数値フォーマット ---
-        function formatNum(num) {
-            return num.toLocaleString(undefined, { 
-                minimumFractionDigits: 0, 
-                maximumFractionDigits: 3 
-            });
+        // ロック画面
+        const PASS_TEST = "1111"; const PASS_REAL = "5963"; 
+        document.addEventListener('DOMContentLoaded', function() {
+            if(localStorage.getItem("proWebUnlocked") === "true") { document.getElementById("startLockScreen").style.display = "none"; }
+        });
+        function checkStartPass() {
+            const val = document.getElementById("inputPass").value;
+            if(val === PASS_TEST || val === PASS_REAL) { alert("Authenticated!"); localStorage.setItem("proWebUnlocked", "true"); document.getElementById("startLockScreen").style.display = "none"; } 
+            else { alert("Wrong Passcode"); document.getElementById("inputPass").value = ""; }
         }
 
-        // --- メイン計算ロジック ---
-        function updateDisplay() {
-            // Mode 1: Smart Sheet (固定参照)
-            const mVal = parseFloat(document.getElementById('masterInput').value) || 0;
-            document.querySelectorAll('#rows-container-smart .row').forEach(r => {
-                const id = r.dataset.id;
-                const op = document.getElementById('smart-op-'+id).textContent;
-                const mult = parseFloat(r.querySelector('.multiplier-input').value) || 0;
-                const pct = r.querySelector('.percent-toggle').classList.contains('active');
-                
-                let mod = pct ? mVal * (mult / 100) : mult;
-                let res = 0;
-                
-                if(op === '+') res = mVal + mod;
-                else if(op === '-') res = mVal - mod;
-                else if(op === '×') res = pct ? mVal * (mult / 100) : mVal * mult;
-                else if(op === '÷') res = mult !== 0 ? mVal / mult : 0;
-                
-                r.querySelector('.result-text').textContent = formatNum(res);
-            });
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function openManual() { document.getElementById('manualModal').classList.add('active'); }
+        function openImport() { document.getElementById('importText').value = ""; document.getElementById('importModal').classList.add('active'); }
 
-            // Mode 2: Flow (連鎖計算)
-            const mValS = parseFloat(document.getElementById('masterInputSimple').value) || 0;
-            let chain = mValS;
-            document.querySelectorAll('#rows-container-simple .row').forEach(r => {
-                const id = r.dataset.id;
-                const op = document.getElementById('simple-op-'+id).textContent;
-                const mult = parseFloat(r.querySelector('.multiplier-input').value) || 0;
+        function stripError(num) { return parseFloat(num.toPrecision(12)); }
+        function formatNum(num) { return stripError(num).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 3 }); }
+
+        function updateDisplay() {
+            const masterValStr = document.getElementById('masterInput').value.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).replace(/．/g, '.');
+            const mVal = parseFloat(masterValStr) || 0;
+            let chain = mVal;
+            document.querySelectorAll('#rows-container .row').forEach(r => {
+                const opEl = r.querySelector('.operator-display'); const op = opEl ? opEl.textContent.trim() : '+';
+                const inputValStr = r.querySelector('.multiplier-input').value.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).replace(/．/g, '.');
+                const mult = parseFloat(inputValStr) || 0;
                 const pct = r.querySelector('.percent-toggle').classList.contains('active');
-                const isChain = document.getElementById('simple-base-'+id).classList.contains('chain');
-                
-                // chainモードなら前の行の結果、そうでなければ初期値を使う
-                const base = isChain ? chain : mValS;
-                let mod = pct ? base * (mult / 100) : mult;
+                const isChain = r.querySelector('.base-toggle').classList.contains('chain');
+                const base = isChain ? chain : mVal;
+                let mod = pct ? stripError(base * (mult / 100)) : mult;
                 let res = 0;
-                
-                if(op === '+') res = base + mod;
-                else if(op === '-') res = base - mod;
-                else if(op === '×') res = pct ? base * (mult / 100) : base * mult;
-                else if(op === '÷') res = mult !== 0 ? base / mult : 0;
-                
+                if(op === '+' || op === '＋') res = base + mod;
+                else if(op === '-' || op === '−' || op === 'ー') res = base - mod;
+                else if(op === '×' || op === '*' || op === '＊' || op === 'x' || op === 'X') res = pct ? stripError(base * (mult / 100)) : stripError(base * mult);
+                else if(op === '÷' || op === '/' || op === '／') res = mult !== 0 ? stripError(base / mult) : 0;
+                else res = base + mod;
+                res = stripError(res);
                 r.querySelector('.result-text').textContent = formatNum(res);
-                chain = res; // 次の行のために結果を更新
+                chain = res;
             });
-            
             saveSettings();
         }
 
-        // --- 編集モード切替 ---
+        // --- メモ帳のURLリンク機能 ---
+        function updateMemoLinks() {
+            const text = document.getElementById('memoArea').value;
+            const linkDiv = document.getElementById('memoLinks');
+            linkDiv.innerHTML = '';
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            const matches = text.match(urlRegex);
+            if(matches) {
+                matches.forEach(url => {
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.target = '_blank';
+                    a.className = 'memo-link-item';
+                    a.textContent = "🌍 " + (url.length > 35 ? url.substring(0,32)+"..." : url);
+                    linkDiv.appendChild(a);
+                });
+            }
+        }
+
+        function getScreenData() {
+            return {
+                n: document.getElementById('masterLabel').value, 
+                b: document.getElementById('masterInput').value, 
+                m: document.getElementById('memoArea').value, 
+                r: Array.from(document.querySelectorAll('#rows-container .row')).map(r => ({
+                    n: r.querySelector('.text-label-input').value, 
+                    p: parseFloat(r.querySelector('.multiplier-input').value) || 0, // 数値として保存
+                    o: r.querySelector('.operator-display').textContent.trim(), 
+                    pct: r.querySelector('.percent-toggle').classList.contains('active'), 
+                    c: r.querySelector('.base-toggle').classList.contains('chain') 
+                }))
+            };
+        }
+
+        function applyData(s) {
+            if(!s) return;
+            document.getElementById('masterLabel').value = s.n || s.name || s.masterLabel || '';
+            document.getElementById('masterInput').value = s.b || s.base || s.masterInput || '';
+            document.getElementById('memoArea').value = s.m || s.memo || '';
+            updateMemoLinks();
+            document.getElementById('rows-container').innerHTML = '';
+            
+            let rowsToLoad = s.r || s.rows || s.simpleRows;
+            if(rowsToLoad) { 
+                rowsToLoad.forEach(r => {
+                    let op = r.o || r.operator || '+';
+                    let label = r.n || r.label || '';
+                    let val = (r.p !== undefined) ? r.p : (r.multiplier !== undefined ? r.multiplier : '');
+                    let isPct = (r.pct !== undefined) ? r.pct : (r.isPercentActive || false);
+                    let isChain = (r.c !== undefined) ? r.c : (r.baseMode === 'chain');
+                    
+                    let rowData = {
+                        label: label, multiplier: val, operator: op, isPercentActive: isPct, baseMode: isChain ? 'chain' : 'master'
+                    };
+                    addRow(rowData);
+                }); 
+            } else { addRow(); }
+            updateDisplay();
+        }
+
+        function saveSettings(){ localStorage.setItem('simpleSheetSettings_pro', JSON.stringify(getScreenData())); }
+
         function toggleEditMode() {
             isEditMode = !isEditMode;
             const btn = document.getElementById('editToggle');
-            const d = languageMap[currentLanguage];
             btn.classList.toggle('active', isEditMode);
-            btn.textContent = isEditMode ? (d.btnDone + ' ✓') : (d.btnEdit + ' ✎');
+            btn.textContent = isEditMode ? '✓' : '🗑️';
             document.getElementById('saveList').classList.toggle('editing', isEditMode);
         }
 
-        // --- メモリ保存 ---
         function saveToMemory() {
             const data = getScreenData();
-            const name = data.masterLabel || "No Name";
-            let lib = JSON.parse(localStorage.getItem('sheetLibrary_v3') || '[]');
+            const name = data.n || "No Name";
+            let lib = JSON.parse(localStorage.getItem('sheetLibrary_pro') || '[]');
             lib.push({ id: Date.now(), name: name, content: data });
-            localStorage.setItem('sheetLibrary_v3', JSON.stringify(lib));
+            localStorage.setItem('sheetLibrary_pro', JSON.stringify(lib));
             renderSaveList();
             showMsg(languageMap[currentLanguage].msgSave);
         }
 
-        // --- メモリリスト表示 ---
         function renderSaveList() {
             const cont = document.getElementById('saveList');
-            const lib = JSON.parse(localStorage.getItem('sheetLibrary_v3') || '[]');
+            const lib = JSON.parse(localStorage.getItem('sheetLibrary_pro') || '[]');
             cont.innerHTML = '';
             lib.slice().reverse().forEach(item => {
                 const chip = document.createElement('div');
                 chip.className = 'save-chip';
-                
-                // XSS対策済み
                 const nameSpan = document.createElement('span');
                 nameSpan.textContent = item.name;
-                
                 const delIcon = document.createElement('span');
                 delIcon.className = 'del-icon';
                 delIcon.textContent = '🗑';
-                
-                chip.appendChild(nameSpan);
-                chip.appendChild(delIcon);
-                
+                chip.appendChild(nameSpan); chip.appendChild(delIcon);
                 chip.onclick = () => {
                     if(isEditMode) deleteMemory(item.id);
-                    else { 
-                        applyData(item.content); 
-                        showMsg(languageMap[currentLanguage].msgLoad); 
-                    }
+                    else { applyData(item.content); showMsg(languageMap[currentLanguage].msgLoad); }
                 };
                 cont.appendChild(chip);
             });
@@ -679,114 +456,103 @@
 
         function deleteMemory(id) {
             if(confirm(languageMap[currentLanguage].confirmDel)) {
-                let lib = JSON.parse(localStorage.getItem('sheetLibrary_v3') || '[]');
+                let lib = JSON.parse(localStorage.getItem('sheetLibrary_pro') || '[]');
                 lib = lib.filter(i => i.id !== id);
-                localStorage.setItem('sheetLibrary_v3', JSON.stringify(lib));
+                localStorage.setItem('sheetLibrary_pro', JSON.stringify(lib));
                 renderSaveList();
             }
         }
 
-        // --- データ取得 ---
-        function getScreenData() {
-            return {
-                masterLabel: document.getElementById('masterLabel').value,
-                masterInput: document.getElementById('masterInput').value,
-                masterInputSimple: document.getElementById('masterInputSimple').value,
-                lastMode: document.getElementById('smartSheetBtn').classList.contains('active') ? 'smartSheet' : 'customSimple',
-                smartRows: Array.from(document.querySelectorAll('#rows-container-smart .row')).map(r => ({
-                    id: r.dataset.id, 
-                    label: r.querySelector('.text-label-input').value, 
-                    multiplier: r.querySelector('.multiplier-input').value, 
-                    operator: document.getElementById('smart-op-'+r.dataset.id).textContent, 
-                    isPercentActive: r.querySelector('.percent-toggle').classList.contains('active')
-                })),
-                simpleRows: Array.from(document.querySelectorAll('#rows-container-simple .row')).map(r => ({
-                    id: r.dataset.id, 
-                    label: r.querySelector('.text-label-input').value, 
-                    multiplier: r.querySelector('.multiplier-input').value, 
-                    operator: document.getElementById('simple-op-'+r.dataset.id).textContent, 
-                    isPercentActive: r.querySelector('.percent-toggle').classList.contains('active'), 
-                    baseMode: document.getElementById('simple-base-'+r.dataset.id).classList.contains('chain') ? 'chain' : 'master'
-                }))
-            };
-        }
-
-        // --- データ適用 ---
-        function applyData(s) {
-            if(!s || !s.smartRows) { 
-                if(!document.querySelector('.row')) { addRowSmart(); addRowSimple(); }
-                return; 
+        // --- Export (スマホ互換フォーマット) ---
+        function exportData() { 
+            const data = getScreenData();
+            // JSONテキストを作成 (Base64化しない)
+            const jsonCode = JSON.stringify(data);
+            
+            let output = "";
+            
+            // 1. タイトル
+            const title = data.n || "Simple Sheet";
+            output += `【 ${title} 】\n\n`;
+            
+            // 2. リンク (メモから抽出)
+            const memo = data.m || "";
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            const matches = memo.match(urlRegex);
+            if(matches && matches.length > 0) {
+                output += "[Links]\n";
+                matches.forEach(url => { output += `${url}\n`; });
+                output += "\n";
             }
-            document.getElementById('masterLabel').value = s.masterLabel || '';
-            document.getElementById('masterInput').value = s.masterInput || '';
-            document.getElementById('masterInputSimple').value = s.masterInputSimple || '';
             
-            document.getElementById('rows-container-smart').innerHTML = '';
-            document.getElementById('rows-container-simple').innerHTML = '';
-            s.smartRows.forEach(r => addRowSmart(r));
-            s.simpleRows.forEach(r => addRowSimple(r));
-            switchMode(s.lastMode || 'smartSheet');
-            updateDisplay();
+            // 3. データコードマーカー
+            output += "▼ DATA CODE ▼\n";
+            output += jsonCode;
+            
+            navigator.clipboard.writeText(output); 
+            showMsg(languageMap[currentLanguage].msgExported); 
         }
 
-        function saveSettings(){ 
-            localStorage.setItem('simpleSheetSettings', JSON.stringify(getScreenData())); 
+        // --- Import (自動抽出) ---
+        function executeImport() {
+            let text = document.getElementById('importText').value.trim();
+            if(!text) return;
+
+            // 1. JSONパターンを探す ({...})
+            const firstBrace = text.indexOf('{');
+            const lastBrace = text.lastIndexOf('}');
+            if (firstBrace !== -1 && lastBrace !== -1 && firstBrace < lastBrace) {
+                try {
+                    const potentialJson = text.substring(firstBrace, lastBrace + 1);
+                    const j = JSON.parse(potentialJson);
+                    applyData(j);
+                    showMsg(languageMap[currentLanguage].msgLoad);
+                    closeModal('importModal');
+                    return;
+                } catch(e) {}
+            }
+
+            // 2. Base64パターンを探す (念のため旧形式もサポート)
+            const base64Match = text.match(/eyJ[a-zA-Z0-9+/=]+/);
+            if (base64Match) {
+                try {
+                    const jsonStr = decodeURIComponent(escape(atob(base64Match[0])));
+                    const j = JSON.parse(jsonStr);
+                    applyData(j);
+                    showMsg(languageMap[currentLanguage].msgLoad);
+                    closeModal('importModal');
+                    return;
+                } catch(e) {}
+            }
+
+            // 3. テキストデータとして読み込み (Excelコピーなど)
+            if(tryParseText(text)){ 
+                showMsg(languageMap[currentLanguage].msgLoad);
+                closeModal('importModal');
+            } else {
+                showMsg(languageMap[currentLanguage].msgError);
+            }
         }
 
-        // --- 行追加: Smart Mode ---
-        function addRowSmart(s=null) {
-            const id = s ? s.id : Math.random().toString(36).substr(2, 5);
+        function addRow(s=null) {
+            const id = s && s.id ? s.id : Math.random().toString(36).substr(2, 5);
             const ph = languageMap[currentLanguage].rowLabel;
-            const div = document.createElement('div'); 
-            div.className = 'row'; 
-            div.dataset.id = id;
+            const div = document.createElement('div'); div.className = 'row'; div.dataset.id = id;
+            const isChain = s ? (s.baseMode==='chain') : true; 
             const val = s ? s.multiplier : '';
-            
+
             div.innerHTML = `
                 <input type="text" class="text-label-input" placeholder="${ph}" value="${s?s.label:''}" oninput="saveSettings()">
                 <div class="calc-area">
-                    <div class="operator-group">
-                        <div class="operator-control" onclick="changeOp('${id}','smart',1)">▲</div>
-                        <div class="operator-display" id="smart-op-${id}">${s?s.operator:'+'}</div>
-                        <div class="operator-control" onclick="changeOp('${id}','smart',-1)">▼</div>
-                    </div>
-                    <input type="number" step="any" class="multiplier-input" value="${val}" placeholder="0" oninput="updateDisplay()">
-                    <div class="percent-toggle ${s&&s.isPercentActive?'active':''}" onclick="this.classList.toggle('active');updateDisplay()">%</div>
-                </div>
-                <div class="result-area">
-                    <div class="result-text">0</div>
-                    <div style="display:flex; gap:10px;">
-                        <button class="action-btn" onclick="copyRowVal(this)">📋</button>
-                        <button class="action-btn" onclick="this.closest('.row').remove();updateDisplay()">🗑️</button>
-                    </div>
-                </div>
-            `;
-            document.getElementById('rows-container-smart').appendChild(div); 
-            updateDisplay();
-        }
-
-        // --- 行追加: Flow Mode ---
-        function addRowSimple(s=null) {
-            const id = s ? s.id : Math.random().toString(36).substr(2, 5);
-            const ph = languageMap[currentLanguage].rowLabel;
-            const div = document.createElement('div'); 
-            div.className = 'row'; 
-            div.dataset.id = id;
-            const isChain = s ? s.baseMode==='chain' : true;
-            const val = s ? s.multiplier : '';
-
-            div.innerHTML = `
-                <input type="text" class="text-label-input" placeholder="${ph}" value="${s?s.label:''}" oninput="saveSettings()">
-                <div class="calc-area">
-                    <div id="simple-base-${id}" class="base-toggle ${isChain?'chain':''}" onclick="this.classList.toggle('chain');this.textContent=this.classList.contains('chain')?'🔗':'🏠';updateDisplay()">
+                    <div id="base-${id}" class="base-toggle ${isChain?'chain':''}" onclick="this.classList.toggle('chain');this.textContent=this.classList.contains('chain')?'🔗':'🏠';updateDisplay()">
                         ${isChain?'🔗':'🏠'}
                     </div>
                     <div class="operator-group">
-                        <div class="operator-control" onclick="changeOp('${id}','simple',1)">▲</div>
-                        <div class="operator-display" id="simple-op-${id}">${s?s.operator:'+'}</div>
-                        <div class="operator-control" onclick="changeOp('${id}','simple',-1)">▼</div>
+                        <div class="operator-control" onclick="changeOp('${id}',1)">▲</div>
+                        <div class="operator-display" id="op-${id}">${s?s.operator:'+'}</div>
+                        <div class="operator-control" onclick="changeOp('${id}',-1)">▼</div>
                     </div>
-                    <input type="number" step="any" class="multiplier-input" value="${val}" placeholder="0" oninput="updateDisplay()">
+                    <input type="number" step="any" class="multiplier-input" value="${val}" placeholder="" oninput="updateDisplay()">
                     <div class="percent-toggle ${s&&s.isPercentActive?'active':''}" onclick="this.classList.toggle('active');updateDisplay()">%</div>
                 </div>
                 <div class="result-area">
@@ -797,127 +563,104 @@
                     </div>
                 </div>
             `;
-            document.getElementById('rows-container-simple').appendChild(div); 
+            document.getElementById('rows-container').appendChild(div); 
             updateDisplay();
         }
 
-        // --- ヘルパー関数 ---
-        function changeOp(id, m, d) { 
+        function changeOp(id, d) { 
             const ops = ['+','-','×','÷']; 
-            const el = document.getElementById(m+'-op-'+id); 
-            el.textContent = ops[(ops.indexOf(el.textContent) + d + 4) % 4]; 
+            const el = document.getElementById('op-'+id).closest('.row').querySelector('.operator-display');
+            const currentOp = el.textContent.trim();
+            el.textContent = ops[(ops.indexOf(currentOp) + d + 4) % 4]; 
             updateDisplay(); 
         }
 
-        function switchMode(m) { 
-            document.getElementById('smart-sheet-mode').style.display = m==='smartSheet' ? 'block' : 'none'; 
-            document.getElementById('custom-simple-mode').style.display = m==='customSimple' ? 'block' : 'none'; 
-            document.getElementById('smartSheetBtn').classList.toggle('active', m==='smartSheet'); 
-            document.getElementById('customSimpleBtn').classList.toggle('active', m==='customSimple'); 
-            updateDisplay(); 
-        }
-        
         function copyRowVal(btn) { 
             navigator.clipboard.writeText(btn.closest('.result-area').querySelector('.result-text').textContent.replace(/,/g,'')); 
             showMsg(languageMap[currentLanguage].copyMsg); 
         }
 
-        function copyPage(m) { 
+        // ★Excel用コピー (項目名 + 結果のみ)
+        function copyPage() { 
             let t = `【${document.getElementById('masterLabel').value || 'Sheet'}】\n`;
-            const container = m === 'smart' ? '#rows-container-smart' : '#rows-container-simple';
-            document.querySelectorAll(container + ' .row').forEach(r => { 
+            // Base Value
+            t += `${languageMap[currentLanguage].masterLabelStart}\t${document.getElementById('masterInput').value}\n`;
+            
+            document.querySelectorAll('#rows-container .row').forEach(r => { 
+                // 形式: [項目名] \t [結果]  (入力値、演算子は省く)
                 t += `${r.querySelector('.text-label-input').value || '-'}\t${r.querySelector('.result-text').textContent.replace(/,/g,'')}\n`; 
             });
+            const memo = document.getElementById('memoArea').value;
+            if(memo) t += `\n[Memo]\n${memo}`;
+            
             navigator.clipboard.writeText(t); 
             showMsg(languageMap[currentLanguage].copyMsg);
         }
 
-        // --- 電卓ロジック ---
-        function calcInput(v) { 
-            if(currentCalc === "0" && v !== ".") currentCalc = v; 
-            else currentCalc += v; 
-            document.getElementById('calcDisplay').value = currentCalc; 
-        }
-        function calcClear() { 
-            currentCalc = "0"; 
-            document.getElementById('calcDisplay').value = "0"; 
-        }
-        function calcBack() { 
-            if(currentCalc.length > 1) { currentCalc = currentCalc.slice(0, -1); } 
-            else { currentCalc = "0"; } 
-            document.getElementById('calcDisplay').value = currentCalc; 
-        }
-        
-        function calcResult() { 
-            try { 
-                let expression = currentCalc
-                    .replace(/×/g, '*')
-                    .replace(/÷/g, '/')
-                    .replace(/%/g, '/100');
+        // テキストデータのパース（インポート用）
+        function tryParseText(text) {
+             const lines = text.trim().split(/\r?\n/);
+            if (lines.length < 1) return false;
+            let name = ""; let base = 0; let rows = []; let startRowIdx = 0;
+            const titleMatch = lines[0].match(/【(.*?)】/);
+            if (titleMatch) { name = titleMatch[1]; startRowIdx = 1; } 
+            else if (!isNaN(parseFloat(lines[0])) && lines[0].trim().match(/^[\d\.-]+$/)) { base = parseFloat(lines[0]); startRowIdx = 1; } 
+            
+            if (startRowIdx < lines.length) {
+                const rowText = lines[startRowIdx];
+                const baseValMatch = rowText.match(/[\d\.-]+/);
+                if (rowText.includes("Base") || rowText.includes("元") || rowText.includes("Initial") || (!rowText.includes("\t") && baseValMatch)) {
+                    if (baseValMatch) base = parseFloat(baseValMatch[0]);
+                    startRowIdx++;
+                }
+            }
+
+            let readingMemo = false;
+            let memoContent = "";
+
+            for (let i = startRowIdx; i < lines.length; i++) {
+                const line = lines[i].trim(); if (!line) continue;
+                if (line.includes("[Memo]") || line.includes("▼ DATA CODE")) { readingMemo = true; continue; }
+                if (readingMemo) { 
+                    if(line.includes("▼ DATA CODE")) break; 
+                    memoContent += line + "\n"; 
+                    continue; 
+                }
+
+                let parts = line.split(/\t+/); if (parts.length < 2) parts = line.split(/\s{2,}/);
                 
-                let res = eval(expression); 
-                currentCalc = Number.isInteger(res) ? res.toString() : parseFloat(res.toFixed(8)).toString(); 
-            } catch(e) { 
-                currentCalc = "Error"; 
-            } 
-            document.getElementById('calcDisplay').value = currentCalc; 
-        }
-        
-        function copyCalcResult() { 
-            navigator.clipboard.writeText(document.getElementById('calcDisplay').value); 
-            showMsg(languageMap[currentLanguage].copyMsg); 
-        }
-        function toggleCalc() { 
-            document.getElementById('sideCalc').classList.toggle('active'); 
-        }
-
-        // --- ユーティリティ機能 ---
-        function clearNumbers() { 
-            document.getElementById('masterInput').value = ""; 
-            document.getElementById('masterInputSimple').value = ""; 
-            document.querySelectorAll('.multiplier-input').forEach(i => i.value = ""); 
-            updateDisplay(); 
-        }
-        function fullReset() { 
-            if(confirm(languageMap[currentLanguage].confirmReset)) { 
-                localStorage.clear(); 
-                location.reload(); 
-            } 
-        }
-        function showMsg(t) { 
-            const m = document.getElementById('saveMessage'); 
-            m.textContent = t; 
-            m.style.opacity = 1; 
-            setTimeout(() => m.style.opacity = 0, 1500); 
+                // オールコピー（項目名 + 結果）の形式を読み込む
+                if (parts.length >= 2) {
+                    let valStr = parts[parts.length-1].replace(/,/g, '');
+                    if (!isNaN(parseFloat(valStr))) {
+                        const val = parseFloat(valStr);
+                        const label = parts.slice(0, parts.length-1).join(" ").trim();
+                        rows.push({ label: label, multiplier: val, operator: '+', baseMode: 'chain', isPercentActive: false });
+                    }
+                }
+            }
+            
+            if (rows.length === 0 && base === 0 && !name) return false;
+            document.getElementById('masterLabel').value = name; 
+            document.getElementById('masterInput').value = base;
+            document.getElementById('memoArea').value = memoContent.trim();
+            updateMemoLinks();
+            document.getElementById('rows-container').innerHTML = "";
+            rows.forEach(r => addRow(r)); updateDisplay();
+            return true;
         }
 
-        function exportData() { 
-            const exportObj = { ...localStorage }; 
-            navigator.clipboard.writeText(btoa(JSON.stringify(exportObj))); 
-            // 修正箇所：多言語メッセージ対応
-            showMsg(languageMap[currentLanguage].msgExported); 
-        }
-        function importData() { 
-            // 修正箇所：多言語プロンプト対応
-            const str = prompt(languageMap[currentLanguage].promptImport); 
-            if(str) { 
-                try {
-                    const d = JSON.parse(atob(str)); 
-                    Object.keys(d).forEach(k => localStorage.setItem(k, d[k])); 
-                    location.reload();
-                } catch(e) { 
-                    // 修正箇所：多言語エラー対応
-                    alert(languageMap[currentLanguage].msgError); 
-                } 
-            } 
-        }
+        function calcInput(v) { if(v === 'AC') { currentCalc = "0"; } else if(v === 'BS') { currentCalc = currentCalc.length > 1 ? currentCalc.slice(0, -1) : "0"; } else { if(currentCalc === "0" && v !== ".") currentCalc = v; else currentCalc += v; } document.getElementById('calcDisplay').value = currentCalc; }
+        function calcResult() { try { let expression = currentCalc.replace(/×/g, '*').replace(/÷/g, '/').replace(/%/g, '/100'); let res = eval(expression); currentCalc = stripError(res).toString(); } catch(e) { currentCalc = "Error"; } document.getElementById('calcDisplay').value = currentCalc; }
+        function copyCalcResult() { navigator.clipboard.writeText(document.getElementById('calcDisplay').value); showMsg(languageMap[currentLanguage].copyMsg); }
+        function toggleCalc() { document.getElementById('sideCalc').classList.toggle('active'); }
+        function clearNumbers() { document.getElementById('masterInput').value = ""; document.querySelectorAll('.multiplier-input').forEach(i => i.value = ""); document.getElementById('memoArea').value = ""; updateMemoLinks(); updateDisplay(); }
+        function fullReset() { if(confirm(languageMap[currentLanguage].confirmReset)) { localStorage.removeItem('simpleSheetSettings_pro'); location.reload(); } }
+        function showMsg(t) { const m = document.getElementById('saveMessage'); m.textContent = t; m.style.opacity = 1; setTimeout(() => m.style.opacity = 0, 1500); }
 
-        // --- Service Worker登録 (PWA必須) ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW registered!', reg))
-                    .catch(err => console.log('SW failed', err));
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW failed', err));
             });
         }
     </script>
