@@ -1,6 +1,6 @@
 // ★重要: index.htmlを更新したときは、ここの数字(v19 -> v20)を必ず変えてください。
 // そうしないと、古い画面が残り続けてしまいます。
-const CACHE_NAME = 'simple-calc-app-v20'; 
+const CACHE_NAME = 'simple-calc-app-v21'; 
 
 const urlsToCache = [
   './',
